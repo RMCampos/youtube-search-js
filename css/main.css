@@ -1,0 +1,12 @@
+.card.card-body {
+    margin: 20px 0px;
+}
+
+.accordion-body {
+    min-height: 230px;
+}
+
+.accordion-body iframe {
+    float: left;
+    margin-right: 10px;
+}
