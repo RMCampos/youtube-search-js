@@ -14,6 +14,13 @@
 </head>
   <body>
     <div class="container">
+        <!-- Welcome panel -->
+        <div class="card card-body">
+            <h5 class="card-title">Bem vindo ao Youtube Search App</h5>
+            <h6 class="card-subtitle mb-2 text-muted">Desafio</h6>
+            
+        </div>
+
         <!-- Search form panel -->
         <div class="card card-body">
             <form class="row" data-bind="submit: doSearch">
@@ -29,11 +36,15 @@
                     <button class="btn btn-primary" type="submit" data-bind="disable: isSearching">Pesquisar</button>
                 </div>
             </form>
+
+            <small class="card-text text-muted mt-2">Informe um termo de pesquisa, uma quantidade de itens por página, e clique em Pesquisar.</small>
         </div>
 
         <!-- Results panel -->
         <div class="card card-body" data-bind="visible: showResultPanel">
-            <h4 class="mb-2">Resultado: <span data-bind="text: totalResults"></span> vídeo(s) encontrados</h4>
+            <h5 class="card-title">Resultado da pesquisa:
+                <span data-bind="text: totalResults"></span> vídeo(s) encontrados!
+            </h5>
 
             <div class="accordion" id="accordionExample">
                 <!-- ko foreach: resultItems -->
@@ -49,12 +60,14 @@
                             <p><b>Descrição:</b> <span data-bind="text: snippet.description"></span></p>
                             <p><b>Canal:</b> <span data-bind="text: snippet.channelTitle"></span></p>
                             <p><b>Data da publicação:</b> <span data-bind="text: snippet.publishedAt"></span></p>
-                            <p><b>Duração:</b> <span data-bind="text: $root.getVideoDuration(id.videoId())"></span></p>
+                            <p><b>Duração:</b> <span data-bind="text: duration"></span></p>
                         </div>
                     </div>
                 </div>
                 <!-- /ko -->
             </div>
+
+            <small class="card-text text-muted mt-2">Clique no título do vídeo para expandir.</small>
         </div>
 
         <!-- Stats panel -->
@@ -63,11 +76,9 @@
 
             <p>Top 5 palavras que mais se repetem</p>
             <p>
-                - <span>Palavra 1</span><br>
-                - <span>Palavra 2</span><br>
-                - <span>Palavra 3</span><br>
-                - <span>Palavra 4</span><br>
-                - <span>Palavra 5</span>
+                <!-- ko foreach: wordsResult -->
+                - <b>Palavra:</b> <span data-bind="text: palavra"></span> - <b>Total:</b> <span data-bind="text: total"></span><br>
+                <!-- /ko -->
             </p>
             <p>Tempo total dos vídeos: <span data-bind="text: totalDurationResuls"></span></p>
         </div>
@@ -82,6 +93,6 @@
     <script src="js/functions.js"></script>
     <script src="js/urls.js"></script>
     <script src="js/ajax.js"></script>
-    <script src="js/index.js"></script>
+    <script src="mvvm/index.js"></script>
   </body>
 </html>
