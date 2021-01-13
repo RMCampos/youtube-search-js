@@ -4,12 +4,19 @@
     function MainVm() {
         const self = this;
 
-        self.searchTerm = ko.observable('Joinville');
-        self.pageSize = ko.observable(3);
+        self.searchTerm = ko.observable('');
+        self.pageSize = ko.observable(5);
         self.isSearching = ko.observable(false);
         self.resultItems = ko.mapping.fromJS([]);
         self.totalResults = ko.observable(0);
         self.showResultPanel = ko.observable(false);
+        self.totalDurationResuls = ko.observable(0);
+
+        const durationMap = {};
+
+        self.getVideoDuration = function(item) {
+            return durationMap[item] || '00:00:00';
+        };
 
         self.doSearch = function(theForm) {
             self.isSearching(true);
@@ -29,12 +36,17 @@
 
                 return getJson(detailsUrl);
             }).then((response) => {
-                //console.log('DEU!', response);
+                console.log(response);
                 self.isSearching(false);
 
+                let seconds = 0;
                 for (let i in response.items) {
+                    durationMap[ response.items[i].id ] = response.items[i].contentDetails.duration;
                     console.log(response.items[i].contentDetails.duration);
+                    seconds += getTimeInSeconds(response.items[i].contentDetails.duration);
                 }
+
+                self.totalDurationResuls(formatSeconds(seconds));
             }).catch((err) => {
                 console.log('Error: ', err);
 

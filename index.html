@@ -33,9 +33,7 @@
 
         <!-- Results panel -->
         <div class="card card-body" data-bind="visible: showResultPanel">
-            <div class="alert alert-success mb-2" role="alert">
-                Resultado: <span data-bind="text: totalResults"></span> vídeo(s) encontrados
-            </div>
+            <h4 class="mb-2">Resultado: <span data-bind="text: totalResults"></span> vídeo(s) encontrados</h4>
 
             <div class="accordion" id="accordionExample">
                 <!-- ko foreach: resultItems -->
@@ -51,6 +49,7 @@
                             <p><b>Descrição:</b> <span data-bind="text: snippet.description"></span></p>
                             <p><b>Canal:</b> <span data-bind="text: snippet.channelTitle"></span></p>
                             <p><b>Data da publicação:</b> <span data-bind="text: snippet.publishedAt"></span></p>
+                            <p><b>Duração:</b> <span data-bind="text: $root.getVideoDuration(id.videoId())"></span></p>
                         </div>
                     </div>
                 </div>
@@ -60,38 +59,17 @@
 
         <!-- Stats panel -->
         <div class="card card-body" data-bind="visible: showResultPanel">
-            <div class="row">
-                <div class="col-2">
-                    <div class="input-group">
-                        <input type="text" disabled class="form-control" value="Palavra1">
-                        <span class="input-group-text">6</span>
-                    </div>
-                </div>
-                <div class="col-2">
-                    <div class="input-group">
-                        <input type="text" disabled class="form-control" value="Palavra1">
-                        <span class="input-group-text">6</span>
-                    </div>
-                </div>
-                <div class="col-2">
-                    <div class="input-group">
-                        <input type="text" disabled class="form-control" value="Palavra1">
-                        <span class="input-group-text">6</span>
-                    </div>
-                </div>
-                <div class="col-2">
-                    <div class="input-group">
-                        <input type="text" disabled class="form-control" value="Palavra1">
-                        <span class="input-group-text">6</span>
-                    </div>
-                </div>
-                <div class="col-2">
-                    <div class="input-group">
-                        <input type="text" disabled class="form-control" value="Palavra1">
-                        <span class="input-group-text">6</span>
-                    </div>
-                </div>
-            </div>
+            <h4 class="mb-2">Análises a partir dos resultados</h4>
+
+            <p>Top 5 palavras que mais se repetem</p>
+            <p>
+                - <span>Palavra 1</span><br>
+                - <span>Palavra 2</span><br>
+                - <span>Palavra 3</span><br>
+                - <span>Palavra 4</span><br>
+                - <span>Palavra 5</span>
+            </p>
+            <p>Tempo total dos vídeos: <span data-bind="text: totalDurationResuls"></span></p>
         </div>
     </div>
 
@@ -101,6 +79,7 @@
     <!-- KnockoutJS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.0/knockout-min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/knockout.mapping@2.4.3/knockout.mapping.min.js"></script>
+    <script src="js/functions.js"></script>
     <script src="js/urls.js"></script>
     <script src="js/ajax.js"></script>
     <script src="js/index.js"></script>
