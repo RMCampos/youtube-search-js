@@ -4,7 +4,9 @@
     function IndexVm() {
         const self = this;
 
+        self.googleKey = ko.observable('');
         self.searchTerm = ko.observable('');
+        self.errorMsg = ko.observable('');
         self.pageSize = ko.observable(5);
         self.isSearching = ko.observable(false);
         self.resultItems = ko.mapping.fromJS([]);
@@ -12,6 +14,7 @@
         self.showResultPanel = ko.observable(false);
         self.totalDurationResuls = ko.observable(0);
         self.wordsResult = ko.mapping.fromJS([]);
+        self.minutesAvailable = ko.observable(0);
 
         function _updateVideoDuration(videoId, durationSeconds) {
             ko.utils.arrayForEach(self.resultItems(), (item) => {
@@ -74,12 +77,42 @@
             ko.mapping.fromJS(wordsResultArray, {}, self.wordsResult);
         }
 
+        function _doValidations() {
+            return new Promise((resolve, reject) => {
+                self.errorMsg('');
+
+                if (self.googleKey() === '') {
+                    self.errorMsg('Por favor, informe a Chave da API do Google :)');
+                    reject(new Error('No Google Key!'));
+                }
+
+                else if (self.searchTerm() === '') {
+                    self.errorMsg('Por favor, informe um termo de pesquisa :)');
+                    reject(new Error('No search term!'));
+                }
+
+                else if (!self.pageSize()) {
+                    self.errorMsg('Por favor, informe o total de itens por página :)');
+                    reject(new Error('No page size!'));
+                }
+
+                else {
+                    resolve();
+                }
+            });
+        }
+
+        self.closeOops = function() {
+            self.errorMsg('');
+        };
+
         self.doSearch = function(theForm) {
-            self.isSearching(true);
+            _doValidations().then(() => {
+                self.isSearching(true);
+                const searchUrl = getSearchUrl(self.searchTerm(), self.pageSize(), self.googleKey());
 
-            const searchUrl = getSearchUrl(self.searchTerm(), self.pageSize());
-
-            getJson(searchUrl).then((response) => {
+                return getJson(searchUrl);
+            }).then((response) => {
                 //console.log(response);
 
                 response.items.forEach((item) => {
@@ -93,7 +126,7 @@
                 //console.log(response.items);
 
                 const idsArray = response.items.map(x => x.id.videoId);
-                const detailsUrl = getDetailsUrl(idsArray);
+                const detailsUrl = getDetailsUrl(idsArray, self.googleKey());
 
                 return getJson(detailsUrl);
             }).then((response) => {
@@ -112,7 +145,7 @@
                 self.totalDurationResuls(formatSeconds(totalSeconds));
                 self.isSearching(false);
             }).catch((err) => {
-                console.log('Error: ', err);
+                console.error(err);
                 self.isSearching(false);
             });
 

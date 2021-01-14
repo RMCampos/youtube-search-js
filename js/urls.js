@@ -1,19 +1,19 @@
-function getSearchUrl(searchTerm, pageSize) {
+function getSearchUrl(searchTerm, pageSize, key) {
     return 'https://youtube.googleapis.com/youtube/v3/search?' +
     'part=snippet&' +
     'type=video&' +
     'maxResults=' + pageSize + '&' +
     'q=' + searchTerm + '&' +
-    'key=KEY';
+    'key=' + key;
 }
 
-function getDetailsUrl(idsArray) {
+function getDetailsUrl(idsArray, key) {
     let url = 'https://www.googleapis.com/youtube/v3/videos?';
 
     for (i in idsArray) {
         url += 'id=' + idsArray[i] + '&';
     }
     
-    url += 'part=contentDetails&key=KEY';
+    url += 'part=contentDetails&key=' + key;
     return url;
 }

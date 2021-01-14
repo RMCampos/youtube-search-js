@@ -18,22 +18,31 @@
         <div class="card card-body">
             <h5 class="card-title">Bem vindo ao Youtube Search App</h5>
             <h6 class="card-subtitle mb-2 text-muted">Desafio</h6>
-            
+            <form>
+                <input id="googleKey" name="googleKey" type="text" data-bind="value: googleKey" class="form-control" placeholder="Chave API Google">
+            </form>
         </div>
 
         <!-- Search form panel -->
         <div class="card card-body">
-            <form class="row" data-bind="submit: doSearch">
+            <form class="row" data-bind="submit: doSearch" novalidate>
                 <div class="col-6">
                     <label class="form-label" for="txfSearchTerm">Termo de pesquisa</label>
-                    <input type="text" class="form-control" data-bind="value: searchTerm, disable: isSearching" name="txfSearchTerm" id="txfSearchTerm" placeholder="Termo de pesquisa" required>
+                    <input type="text" class="form-control" data-bind="value: searchTerm, disable: isSearching" name="txfSearchTerm" id="txfSearchTerm" placeholder="Termo de pesquisa">
                 </div>
                 <div class="col-6">
                     <label class="form-label" for="selPageSize">Itens por página</label>
-                    <input type="text" class="form-control" data-bind="value: pageSize, disable: isSearching" name="selPageSize" id="selPageSize" placeholder="10" required>
+                    <input type="text" class="form-control" data-bind="value: pageSize, disable: isSearching" name="selPageSize" id="selPageSize" placeholder="10">
                 </div>
                 <div class="col-12 mt-2">
                     <button class="btn btn-primary" type="submit" data-bind="disable: isSearching">Pesquisar</button>
+                </div>
+
+                <div class="col-12 mt-2" data-bind="visible: errorMsg() !== ''">
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>Oops!</strong> <span data-bind="text: errorMsg"></span>
+                        <button type="button" class="btn-close" data-bind="click: closeOops" aria-label="Close"></button>
+                    </div>
                 </div>
             </form>
 
@@ -81,15 +90,36 @@
                 <!-- /ko -->
             </p>
             <p>Tempo total dos vídeos: <span data-bind="text: totalDurationResuls"></span></p>
+            <!-- todo: pedir tempo por dia, para cada dia da semana -->
+            <div class="row">
+                <div class="col-12">
+                    <label class="form-label" for="txfMinutesAvailable">Tempo disponível por dia</label>
+                    <select class="form-control" data-bind="value: minutesAvailable" name="txfMinutesAvailable" id="txfMinutesAvailable">
+                        <option value="">Selecione</option>
+                        <option value="15">15 minutos</option>
+                        <option value="20">20 minutos</option>
+                        <option value="30">30 minutos</option>
+                        <option value="40">40 minutos</option>
+                        <option value="90">90 minutos</option>
+                        <option value="120">120 minutos</option>
+                        <option value="150">150 minutos</option>
+                    </select>
+                </div>
+            </div>
+            <p>Tempo disponível:
+                - <b>Por dia:</b> <span data-bind="text: "></span><br>
+                - <b>Por semana:</b> <span data-bind="text: "></span><br>
+            </p>
         </div>
     </div>
 
-    <!-- Option 2: Separate Popper and Bootstrap JS -->
+    <!-- Popper and Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js" integrity="sha384-q2kxQ16AaE6UbzuKqyBE9/u/KzioAlnx2maXQHiDX9d4/zp8Ok3f+M7DPm+Ib6IU" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.min.js" integrity="sha384-pQQkAEnwaBkjpqZ8RU1fF1AKtTcHJwFl3pblpTlHXybJjHpMYo79HY3hIi4NKxyj" crossorigin="anonymous"></script>
     <!-- KnockoutJS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.0/knockout-min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/knockout.mapping@2.4.3/knockout.mapping.min.js"></script>
+    <!-- Own scripts -->
     <script src="js/functions.js"></script>
     <script src="js/urls.js"></script>
     <script src="js/ajax.js"></script>
