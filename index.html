@@ -17,23 +17,18 @@
         <!-- Welcome panel -->
         <div class="card card-body">
             <h5 class="card-title">Bem vindo ao Youtube Search App</h5>
-            <h6 class="card-subtitle mb-2 text-muted">Desafio</h6>
-            <form>
-                <input id="googleKey" name="googleKey" type="text" data-bind="value: googleKey" class="form-control" placeholder="Chave API Google">
-            </form>
-        </div>
-
-        <!-- Search form panel -->
-        <div class="card card-body">
+            <h6 class="card-subtitle mb-2 text-muted">Informe sua chave do Google e um termo de pesquisa!</h6>
+            
             <form class="row" data-bind="submit: doSearch" novalidate>
+                <div class="col-6">
+                    <label class="form-label" for="txfKeyGoogle">Chave Google</label>
+                    <input type="text" data-bind="value: googleKey" name="txfKeyGoogle" id="txfKeyGoogle" class="form-control" placeholder="Chave API Google">
+                </div>
                 <div class="col-6">
                     <label class="form-label" for="txfSearchTerm">Termo de pesquisa</label>
                     <input type="text" class="form-control" data-bind="value: searchTerm, disable: isSearching" name="txfSearchTerm" id="txfSearchTerm" placeholder="Termo de pesquisa">
                 </div>
-                <div class="col-6">
-                    <label class="form-label" for="selPageSize">Itens por página</label>
-                    <input type="text" class="form-control" data-bind="value: pageSize, disable: isSearching" name="selPageSize" id="selPageSize" placeholder="10">
-                </div>
+                
                 <div class="col-12 mt-2">
                     <button class="btn btn-primary" type="submit" data-bind="disable: isSearching">Pesquisar</button>
                 </div>
@@ -45,8 +40,6 @@
                     </div>
                 </div>
             </form>
-
-            <small class="card-text text-muted mt-2">Informe um termo de pesquisa, uma quantidade de itens por página, e clique em Pesquisar.</small>
         </div>
 
         <!-- Results panel -->
@@ -90,26 +83,51 @@
                 <!-- /ko -->
             </p>
             <p>Tempo total dos vídeos: <span data-bind="text: totalDurationResuls"></span></p>
-            <!-- todo: pedir tempo por dia, para cada dia da semana -->
-            <div class="row">
-                <div class="col-12">
-                    <label class="form-label" for="txfMinutesAvailable">Tempo disponível por dia</label>
-                    <select class="form-control" data-bind="value: minutesAvailable" name="txfMinutesAvailable" id="txfMinutesAvailable">
-                        <option value="">Selecione</option>
-                        <option value="15">15 minutos</option>
-                        <option value="20">20 minutos</option>
-                        <option value="30">30 minutos</option>
-                        <option value="40">40 minutos</option>
-                        <option value="90">90 minutos</option>
-                        <option value="120">120 minutos</option>
-                        <option value="150">150 minutos</option>
-                    </select>
+            <p class="text-muted">Tempo disponível por dia</p>
+            
+            <form class="row" data-bind="submit: doUpdateTime" novalidate>
+                <div class="col-2">
+                    <label class="form-label" for="txfMinAvSun">Domingo</label>
+                    <input id="txfMinAvSun" name="txfMinAvSun" type="text" data-bind="value: minAvSun" class="form-control" placeholder="15">
                 </div>
-            </div>
-            <p>Tempo disponível:
-                - <b>Por dia:</b> <span data-bind="text: "></span><br>
-                - <b>Por semana:</b> <span data-bind="text: "></span><br>
-            </p>
+                <div class="col-2">
+                    <label class="form-label" for="txfMinAvMon">Segunda</label>
+                    <input id="txfMinAvMon" name="txfMinAvMon" type="text" data-bind="value: minAvMon" class="form-control" placeholder="120">
+                </div>
+                <div class="col-1">
+                    <label class="form-label" for="txfMinAvTue">Terça</label>
+                    <input id="txfMinAvTue" name="txfMinAvTue" type="text" data-bind="value: minAvTue" class="form-control" placeholder="30">
+                </div>
+                <div class="col-2">
+                    <label class="form-label" for="txfMinAvWed">Quarta</label>
+                    <input id="txfMinAvWed" name="txfMinAvWed" type="text" data-bind="value: minAvWed" class="form-control" placeholder="150">
+                </div>
+                <div class="col-1">
+                    <label class="form-label" for="txfMinAvThu">Quinta</label>
+                    <input id="txfMinAvThu" name="txfMinAvThu" type="text" data-bind="value: minAvThu" class="form-control" placeholder="20">
+                </div>
+                <div class="col-2">
+                    <label class="form-label" for="txfMinAvFri">Sexta</label>
+                    <input id="txfMinAvFri" name="txfMinAvFri" type="text" data-bind="value: minAvFri" class="form-control" placeholder="40">
+                </div>
+                <div class="col-2">
+                    <label class="form-label" for="txfMinAvSat">Sábado</label>
+                    <input id="txfMinAvSat" name="txfMinAvSat" type="text" data-bind="value: minAvSat" class="form-control" placeholder="90">
+                </div>
+
+                <div class="col-12 mt-2">
+                    <button class="btn btn-primary" type="submit" data-bind="disable: isUpdating">Atualizar</button>
+                </div>
+
+                <div class="col-12 mt-2" data-bind="visible: updateErrorMsg() !== ''">
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>Oops!</strong> <span data-bind="text: updateErrorMsg"></span>
+                        <button type="button" class="btn-close" data-bind="click: closeUpdateMsg" aria-label="Close"></button>
+                    </div>
+                </div>
+            </form>
+
+            <p class="mt-2">Dias necessários para assistir todos os vídeos do resultado: <b><span data-bind="text: numDays"></span> dias.</b></p>
         </div>
     </div>
 

@@ -7,14 +7,23 @@
         self.googleKey = ko.observable('');
         self.searchTerm = ko.observable('');
         self.errorMsg = ko.observable('');
-        self.pageSize = ko.observable(5);
+        self.pageSize = ko.observable(10);
         self.isSearching = ko.observable(false);
         self.resultItems = ko.mapping.fromJS([]);
         self.totalResults = ko.observable(0);
         self.showResultPanel = ko.observable(false);
         self.totalDurationResuls = ko.observable(0);
         self.wordsResult = ko.mapping.fromJS([]);
-        self.minutesAvailable = ko.observable(0);
+        self.minAvSun = ko.observable(0);
+        self.minAvMon = ko.observable(0);
+        self.minAvTue = ko.observable(0);
+        self.minAvWed = ko.observable(0);
+        self.minAvThu = ko.observable(0);
+        self.minAvFri = ko.observable(0);
+        self.minAvSat = ko.observable(0);
+        self.numDays = ko.observable(0);
+        self.isUpdating = ko.observable(false);
+        self.updateErrorMsg = ko.observable('');
 
         function _updateVideoDuration(videoId, durationSeconds) {
             ko.utils.arrayForEach(self.resultItems(), (item) => {
@@ -25,11 +34,10 @@
             });
         }
 
-        function _startWordsAnalytics() {
+        function _startWordsAnalysis() {
             const wordsMap = {};
 
             ko.utils.arrayForEach(self.resultItems(), (item) => {
-                //console.log('titulo: ' + item.snippet.title() + ', description: ' + item.snippet.description());
                 const titleMap = countWords(item.snippet.title());
 
                 // Must be non-empty maps
@@ -55,7 +63,7 @@
                 }
             });
 
-            // sort
+            // Sort
             let sortable = [];
             for (const key in wordsMap) {
                 sortable.push([key, wordsMap[key]]);
@@ -72,9 +80,55 @@
                 });
             }
 
-            console.log('finished!', sortable);
-
             ko.mapping.fromJS(wordsResultArray, {}, self.wordsResult);
+        }
+
+        function _startTimeAnalysis() {
+            let secondSum = 0;
+
+            ko.utils.arrayForEach(self.resultItems(), (item) => {
+                secondSum += item.durationSec();
+            });
+
+            let available = self.minAvSun()
+                + self.minAvMon()
+                + self.minAvTue()
+                + self.minAvWed()
+                + self.minAvThu()
+                + self.minAvFri()
+                + self.minAvSat();
+
+            if (!available) {
+                self.updateErrorMsg('Nenhum tempo disponível para vídeos!');
+                return;
+            }
+
+            // Regras
+            // 1. Não pode gastar mais tempo assistindo videos do que o máximo diário
+            // 2. Não pode iniciar outro vídeo se não puder terminar no mesmo dia
+            // 3. Vídeos mais longos do que o tempo disponível no dia devem ser ignorados
+            // 4. A sequencia dos vídeos deve ser na ordem do retorno
+            // 5. Considerar apenas os primeiros 200 vídeos
+
+            // 6. Se o vídeo for maior que o tempo disponível, para.
+
+            /*
+             * Exemplo:
+             * Considerando o seguinte tempo disponível:
+             * Dom 15m - Seg 120m - Ter 30 - Qua 150 - Qui 20 - Sex 40 - Sab 90
+             * 
+             * Considerando 10 videos retornados com as seguintes durações:
+             * 20m 30m 60m 90m 200m 30m 40m 20m 60m 15m
+             * 
+             * - No primeiro dia, nenhum vídeo será assistido
+             * - No segundo dia, 3 videos, os 3 primeiros (20, 30 e 60)
+             * - No terceiro dia, nenhum vídeo será assistido
+             * - No quarto dia, 2 videos assistidos (90 e 30) e 1 ignorado
+             * - No quinto, nenhum video será assistido
+             * - No sexto dia, 1 video (40)
+             * - No sétimo dia, 2 vídeos (20 e 60)
+             * - No oitavo dia, 1 vídeo (15)
+             */
         }
 
         function _doValidations() {
@@ -91,11 +145,6 @@
                     reject(new Error('No search term!'));
                 }
 
-                else if (!self.pageSize()) {
-                    self.errorMsg('Por favor, informe o total de itens por página :)');
-                    reject(new Error('No page size!'));
-                }
-
                 else {
                     resolve();
                 }
@@ -104,6 +153,10 @@
 
         self.closeOops = function() {
             self.errorMsg('');
+        };
+
+        self.closeUpdateMsg = function() {
+            self.updateErrorMsg('');
         };
 
         self.doSearch = function(theForm) {
@@ -140,7 +193,8 @@
                     _updateVideoDuration(response.items[i].id, sec);
                 }
 
-                _startWordsAnalytics();
+                _startWordsAnalysis();
+                _startTimeAnalysis();
 
                 self.totalDurationResuls(formatSeconds(totalSeconds));
                 self.isSearching(false);
@@ -149,6 +203,11 @@
                 self.isSearching(false);
             });
 
+            return false;
+        };
+
+        self.doUpdateTime = function(theForm) {
+            _startTimeAnalysis();
             return false;
         };
     }
