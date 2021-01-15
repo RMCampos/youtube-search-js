@@ -14,14 +14,14 @@
         self.showResultPanel = ko.observable(false);
         self.totalDurationResuls = ko.observable(0);
         self.wordsResult = ko.mapping.fromJS([]);
-        self.minAvSun = ko.observable(0);
-        self.minAvMon = ko.observable(0);
-        self.minAvTue = ko.observable(0);
-        self.minAvWed = ko.observable(0);
-        self.minAvThu = ko.observable(0);
-        self.minAvFri = ko.observable(0);
-        self.minAvSat = ko.observable(0);
-        self.numDays = ko.observable(0);
+        self.minAvSun = ko.observable();
+        self.minAvMon = ko.observable();
+        self.minAvTue = ko.observable();
+        self.minAvWed = ko.observable();
+        self.minAvThu = ko.observable();
+        self.minAvFri = ko.observable();
+        self.minAvSat = ko.observable();
+        self.numDays = ko.observable();
         self.isUpdating = ko.observable(false);
         self.updateErrorMsg = ko.observable('');
 
@@ -84,10 +84,10 @@
         }
 
         function _startTimeAnalysis() {
-            let secondSum = 0;
+            let secondArray = [];
 
             ko.utils.arrayForEach(self.resultItems(), (item) => {
-                secondSum += item.durationSec();
+                secondArray.push(item.durationSec());
             });
 
             let available = self.minAvSun()
@@ -101,6 +101,46 @@
             if (!available) {
                 self.updateErrorMsg('Nenhum tempo disponível para vídeos!');
                 return;
+            }
+
+            const days = [
+                parseInt(self.minAvSun() || "0"),
+                parseInt(self.minAvMon() || "0"),
+                parseInt(self.minAvTue() || "0"),
+                parseInt(self.minAvWed() || "0"),
+                parseInt(self.minAvThu() || "0"),
+                parseInt(self.minAvFri() || "0"),
+                parseInt(self.minAvSat() || "0"),
+            ];
+
+            console.log('days:', days);
+
+            let numDay = 1;
+            let days = 0;
+            let stop = false;
+
+            do {
+                // Obtém o próximo dia
+                const weekDay = days[numDay-1];
+                const weekDaySeconds = weekDay * 60;
+
+                // Obtém o próximo video
+                let nextVideoSec = secondArray.splice(0, 1);
+
+                // Se a duração do vídeo for maior do que o disponível no dia, ignora o vídeo
+                if (nextVideoSec > weekDaySeconds) {
+                    continue;
+                }
+
+                days++;
+                numDay++;
+                if (numDay == 8) {
+                    numDay = 1;
+                }
+            } while (secondArray.length > 0 || !stop);
+
+            for (let i in days) {
+                const dia = days[i];
             }
 
             // Regras
