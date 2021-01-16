@@ -1,7 +1,15 @@
-function getSearchUrl(searchTerm, pageSize, key) {
+function getSearchUrl(searchTerm, pageSize, key, pageToken) {
+    if (pageToken !== undefined) {
+        pageToken = 'pageToken=' + pageToken + '&';
+    } else {
+        pageToken = '';
+    }
+
     return 'https://youtube.googleapis.com/youtube/v3/search?' +
     'part=snippet&' +
     'type=video&' +
+    'order=viewCount&' +
+    pageToken +
     'maxResults=' + pageSize + '&' +
     'q=' + searchTerm + '&' +
     'key=' + key;

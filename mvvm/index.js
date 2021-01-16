@@ -7,7 +7,7 @@
         self.googleKey = ko.observable('');
         self.searchTerm = ko.observable('');
         self.errorMsg = ko.observable('');
-        self.pageSize = ko.observable(10);
+        self.pageSize = ko.observable(50);
         self.isSearching = ko.observable(false);
         self.resultItems = ko.mapping.fromJS([]);
         self.totalResults = ko.observable(0);
@@ -24,6 +24,7 @@
         self.numDays = ko.observable();
         self.isUpdating = ko.observable(false);
         self.updateErrorMsg = ko.observable('');
+        self.pageToken = ko.observable('');
 
         function _updateVideoDuration(videoId, durationSeconds) {
             ko.utils.arrayForEach(self.resultItems(), (item) => {
@@ -116,7 +117,7 @@
             console.log('days:', days);
 
             let numDay = 1;
-            let days = 0;
+            let daysNedeed = 0;
             let stop = false;
 
             do {
@@ -132,7 +133,7 @@
                     continue;
                 }
 
-                days++;
+                daysNedeed++;
                 numDay++;
                 if (numDay == 8) {
                     numDay = 1;
@@ -191,6 +192,47 @@
             });
         }
 
+        function _getVideoPage(pageToken) {
+            const searchUrl = getSearchUrl(
+                self.searchTerm(),
+                self.pageSize(),
+                self.googleKey(),
+                pageToken
+            );
+
+            console.log('pageToken:', pageToken);
+
+            return getJson(searchUrl);
+        }
+
+        function _getVideos(pageToken) {
+            if (self.pageToken() !== '') {
+                pageToken = self.pageToken();
+            }
+
+            console.log('pageToken', pageToken);
+            return new Promise((resolve) => {
+                const searchUrl = getSearchUrl(
+                    self.searchTerm(),
+                    self.pageSize(),
+                    self.googleKey(),
+                    pageToken
+                );
+
+                getJson(searchUrl).then((response) => {
+                    //console.log('retrived', response.items.length);
+                    self.pageToken(response.nextPageToken);
+
+                    //if (array.length < 4) {
+                        //_getVideos(response.nextPageToken, resolve);
+                    //} else {
+                        //console.log('finishing up with ', array.length);
+                        resolve(response);
+                    //}
+                });
+            });
+        }
+
         self.closeOops = function() {
             self.errorMsg('');
         };
@@ -199,14 +241,29 @@
             self.updateErrorMsg('');
         };
 
-        self.doSearch = function(theForm) {
+        let array = [];
+
+        self.doSearch = function() {
             _doValidations().then(() => {
                 self.isSearching(true);
-                const searchUrl = getSearchUrl(self.searchTerm(), self.pageSize(), self.googleKey());
-
-                return getJson(searchUrl);
+                return _getVideos();
             }).then((response) => {
                 //console.log(response);
+
+                console.log('finished _getVideos(), response.length', response.length);
+
+                array.push(response.items);
+
+                if (array.length < 4) {
+                    self.doSearch();
+                    return;
+                }
+
+                console.log('OK!!!', array);
+
+                if (1 == 1) {
+                    return;
+                }
 
                 response.items.forEach((item) => {
                     item.durationSec = 0;
