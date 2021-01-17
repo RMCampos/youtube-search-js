@@ -1,4 +1,8 @@
-getTimeInSeconds = (ptTime) => {
+/**
+ * Converts an ISO 8601 duration to seconds.
+ * @param {string} ptTime - A string in ISO 8601 format. E.g.: PT15M33S.
+ */
+function getTimeInSeconds(ptTime) {
     if (!ptTime) {
         return 0;
     }
@@ -26,7 +30,11 @@ getTimeInSeconds = (ptTime) => {
     return seconds + (minutes * 60) + (hours * 3600);
 }
 
-formatSeconds = (pSeconds) => {
+/**
+ * Format a given number in seconds to human furmat. Eg: 00:15:10.
+ * @param {number} pSeconds - An integer representing the seconds.
+ */
+function formatSeconds(pSeconds) {
     if (!pSeconds) {
         return '';
     }
@@ -48,12 +56,14 @@ formatSeconds = (pSeconds) => {
     return `${hourStr}:${minStr}:${secStr}`;
 }
 
-countWords = (text) => {
+/**
+ * Count the number of words in a given text.
+ * @param {string} text - Text to be counted.
+ */
+function countWords(text) {
     if (!text) {
         return {};
     }
-
-    // TODO: parametrizar tamanho minimo da palavra
 
     const ignoreList = ['-','...'];
     const wordsMap = {};

@@ -1,3 +1,9 @@
+/**
+ * Creates URL for searching
+ * @param {string} searchTerm - Term to be searched for
+ * @param {string} key - Youtube API Key
+ * @param {string} pageToken - Current page token (optional). If informed, will get next page.
+ */
 function getSearchUrl(searchTerm, key, pageToken) {
     if (pageToken !== undefined) {
         pageToken = 'pageToken=' + pageToken + '&';
@@ -15,6 +21,11 @@ function getSearchUrl(searchTerm, key, pageToken) {
     'key=' + key;
 }
 
+/**
+ * Creates URL for details (like duration and others)
+ * @param {array} idsArray - An array of IDs
+ * @param {string} key - Youtube API Key
+ */
 function getDetailsUrl(idsArray, key) {
     let url = 'https://www.googleapis.com/youtube/v3/videos?';
 

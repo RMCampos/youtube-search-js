@@ -1,4 +1,8 @@
-let getJson = (pUrl) => {
+/**
+ * Get JSON from given URL
+ * @param {string} pUrl - Destiny URL to get JSON
+ */
+function getJson(pUrl) {
     return new Promise((resolve, reject) => {
         let xhr = new XMLHttpRequest();
         xhr.open('GET', pUrl);

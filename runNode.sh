@@ -1,3 +1,6 @@
 #!/bin/bash
 
-./node_modules/local-web-server/bin/cli.js
+# Required local-web-server global package
+# npm install -g local-web-server
+
+ws
