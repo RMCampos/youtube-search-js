@@ -1,4 +1,4 @@
-function getSearchUrl(searchTerm, pageSize, key, pageToken) {
+function getSearchUrl(searchTerm, key, pageToken) {
     if (pageToken !== undefined) {
         pageToken = 'pageToken=' + pageToken + '&';
     } else {
@@ -10,7 +10,7 @@ function getSearchUrl(searchTerm, pageSize, key, pageToken) {
     'type=video&' +
     'order=viewCount&' +
     pageToken +
-    'maxResults=' + pageSize + '&' +
+    'maxResults=50&' +
     'q=' + searchTerm + '&' +
     'key=' + key;
 }

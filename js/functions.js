@@ -62,7 +62,10 @@ countWords = (text) => {
         const len = wordsArray[i].trim().length;
 
         if (wordsArray[i].trim() !== '' && ignoreList.indexOf(wordsArray[i].trim()) === -1 && len > 2) {
-            const word = wordsArray[i].trim();
+            let word = wordsArray[i].trim();
+
+            // Remove: ,
+            word = word.replace(',', '');
 
             if (wordsMap[word] === undefined) {
                 wordsMap[word] = 1;

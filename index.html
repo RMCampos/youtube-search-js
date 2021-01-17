@@ -8,6 +8,7 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
 
+    <!-- Main app CSS -->
     <link href="css/main.css" rel="stylesheet">
 
     <title>Youtube Search App</title>
@@ -22,18 +23,27 @@
             <form class="row" data-bind="submit: doSearch" novalidate>
                 <div class="col-6">
                     <label class="form-label" for="txfKeyGoogle">Chave Google</label>
-                    <input type="text" data-bind="value: googleKey" name="txfKeyGoogle" id="txfKeyGoogle" class="form-control" placeholder="Chave API Google">
+                    <input type="text" data-bind="value: googleKey, disable: isSearching() || exampleEnabled()" name="txfKeyGoogle" id="txfKeyGoogle" class="form-control" placeholder="Chave API Google">
                 </div>
                 <div class="col-6">
                     <label class="form-label" for="txfSearchTerm">Termo de pesquisa</label>
-                    <input type="text" class="form-control" data-bind="value: searchTerm, disable: isSearching" name="txfSearchTerm" id="txfSearchTerm" placeholder="Termo de pesquisa">
+                    <input type="text" class="form-control" data-bind="value: searchTerm, disable: isSearching() || exampleEnabled()" name="txfSearchTerm" id="txfSearchTerm" placeholder="Termo de pesquisa">
+                </div>
+                <div class="col-12">
+                    <div class="form-check mt-3">
+                        <input class="form-check-input" type="checkbox" id="flexCheckDefault" data-bind="checked: exampleEnabled">
+                        <label class="form-check-label" for="flexCheckDefault">
+                            Caso de exemplo proposto
+                        </label>
+                    </div>
                 </div>
                 
-                <div class="col-12 mt-2">
-                    <button class="btn btn-primary" type="submit" data-bind="disable: isSearching">Pesquisar</button>
+                <div class="col-12 mt-3">
+                    <button class="btn btn-primary" type="submit" data-bind="disable: isSearching()">Pesquisar</button>
+                    <button class="btn btn-secondary" type="button" data-bind="click: doLimpar, disable: isSearching()">Limpar</button>
                 </div>
 
-                <div class="col-12 mt-2" data-bind="visible: errorMsg() !== ''">
+                <div class="col-12 mt-3" data-bind="visible: errorMsg() !== ''">
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         <strong>Oops!</strong> <span data-bind="text: errorMsg"></span>
                         <button type="button" class="btn-close" data-bind="click: closeOops" aria-label="Close"></button>
@@ -43,10 +53,11 @@
         </div>
 
         <!-- Results panel -->
-        <div class="card card-body" data-bind="visible: showResultPanel">
+        <div class="card card-body" data-bind="visible: showResultPanel() && !exampleEnabled()">
             <h5 class="card-title">Resultado da pesquisa:
                 <span data-bind="text: totalResults"></span> vídeo(s) encontrados!
             </h5>
+            <h6 class="card-subtitle mb-2 text-muted">Serão considerados apenas os 200 primeiros vídeos!</h6>
 
             <div class="accordion" id="accordionExample">
                 <!-- ko foreach: resultItems -->
@@ -58,7 +69,6 @@
                     </h2>
                     <div data-bind="attr: {'id': 'collapseOne' + $index()}" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
                         <div class="accordion-body">
-                            <iframe width="360" height="200" data-bind="attr: {'src' : 'https://www.youtube.com/embed/' + id.videoId()}"></iframe> 
                             <p><b>Descrição:</b> <span data-bind="text: snippet.description"></span></p>
                             <p><b>Canal:</b> <span data-bind="text: snippet.channelTitle"></span></p>
                             <p><b>Data da publicação:</b> <span data-bind="text: snippet.publishedAt"></span></p>
@@ -69,28 +79,55 @@
                 <!-- /ko -->
             </div>
 
-            <small class="card-text text-muted mt-2">Clique no título do vídeo para expandir.</small>
+            <nav aria-label="Page navigation" class="position-absolute mt-3 start-50" data-bind="visible: showPagination">
+                <ul class="pagination">
+                    <li class="page-item" data-bind="css: {'disabled': currentPage() === 1}">
+                        <button type="button" class="page-link" data-bind="click: prevPage, attr: {'aria-disabled': currentPage() === 1? 'true' : 'false'}">Previous</button>
+                    </li>
+
+                    <!-- ko foreach: pages -->
+                    <li class="page-item" aria-current="page" data-bind="css: {'active': $data === $root.currentPage()}">
+                        <button class="page-link" type="button" data-bind="click: $root.goToPage, text: $data"></button>
+                    </li>
+                    <!-- /ko -->
+                    
+                    <li class="page-item" data-bind="css: {'disabled': currentPage() === maxPages()}">
+                        <button type="button" class="page-link" data-bind="click: nextPage, attr: {'aria-disabled': currentPage() === maxPages()? 'true' : 'false'}">Next</button>
+                    </li>
+                </ul>
+            </nav>
+            
+            <small class="card-text text-muted mt-3">Clique no título do vídeo para expandir.</small>
         </div>
 
         <!-- Stats panel -->
         <div class="card card-body" data-bind="visible: showResultPanel">
-            <h4 class="mb-2">Análises a partir dos resultados</h4>
+            <h5 class="card-title">Análises a partir dos resultados</h5>
+            <h6 class="card-subtitle mb-2 text-muted">Top 5 palavras mais frequentes e dias necessários para assistir a todos os vídeos!</h6>
 
-            <p>Top 5 palavras que mais se repetem</p>
-            <p>
-                <!-- ko foreach: wordsResult -->
-                - <b>Palavra:</b> <span data-bind="text: palavra"></span> - <b>Total:</b> <span data-bind="text: total"></span><br>
-                <!-- /ko -->
-            </p>
-            <p>Tempo total dos vídeos: <span data-bind="text: totalDurationResuls"></span></p>
-            <p class="text-muted">Tempo disponível por dia</p>
+            <div data-bind="visible: !exampleEnabled()">
+                <p>Top 5 palavras que mais se repetem</p>
+                <p>
+                    <!-- ko foreach: wordsResult -->
+                    - <b>Palavra:</b> <span data-bind="text: palavra"></span> - <b>Total:</b> <span data-bind="text: total"></span><br>
+                    <!-- /ko -->
+                </p>
+            </div>
+
+            <div class="alert alert-primary" role="alert">
+                Tempo total dos vídeos: <span data-bind="text: totalDurationResuls"></span>
+            </div>
+
+            <hr>
+
+            <p class="text-muted">Tempo disponível por dia (em minutos), informe para cada dia</p>
             
             <form class="row" data-bind="submit: doUpdateTime" novalidate>
-                <div class="col-2">
+                <div class="col-1">
                     <label class="form-label" for="txfMinAvSun">Domingo</label>
                     <input id="txfMinAvSun" name="txfMinAvSun" type="text" data-bind="value: minAvSun" class="form-control" placeholder="15">
                 </div>
-                <div class="col-2">
+                <div class="col-1">
                     <label class="form-label" for="txfMinAvMon">Segunda</label>
                     <input id="txfMinAvMon" name="txfMinAvMon" type="text" data-bind="value: minAvMon" class="form-control" placeholder="120">
                 </div>
@@ -98,7 +135,7 @@
                     <label class="form-label" for="txfMinAvTue">Terça</label>
                     <input id="txfMinAvTue" name="txfMinAvTue" type="text" data-bind="value: minAvTue" class="form-control" placeholder="30">
                 </div>
-                <div class="col-2">
+                <div class="col-1">
                     <label class="form-label" for="txfMinAvWed">Quarta</label>
                     <input id="txfMinAvWed" name="txfMinAvWed" type="text" data-bind="value: minAvWed" class="form-control" placeholder="150">
                 </div>
@@ -106,20 +143,20 @@
                     <label class="form-label" for="txfMinAvThu">Quinta</label>
                     <input id="txfMinAvThu" name="txfMinAvThu" type="text" data-bind="value: minAvThu" class="form-control" placeholder="20">
                 </div>
-                <div class="col-2">
+                <div class="col-1">
                     <label class="form-label" for="txfMinAvFri">Sexta</label>
                     <input id="txfMinAvFri" name="txfMinAvFri" type="text" data-bind="value: minAvFri" class="form-control" placeholder="40">
                 </div>
-                <div class="col-2">
+                <div class="col-1">
                     <label class="form-label" for="txfMinAvSat">Sábado</label>
                     <input id="txfMinAvSat" name="txfMinAvSat" type="text" data-bind="value: minAvSat" class="form-control" placeholder="90">
                 </div>
 
-                <div class="col-12 mt-2">
+                <div class="col-12 mt-3">
                     <button class="btn btn-primary" type="submit">Atualizar</button>
                 </div>
 
-                <div class="col-12 mt-2" data-bind="visible: updateErrorMsg() !== ''">
+                <div class="col-12 mt-3" data-bind="visible: updateErrorMsg() !== ''">
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         <strong>Oops!</strong> <span data-bind="text: updateErrorMsg"></span>
                         <button type="button" class="btn-close" data-bind="click: closeUpdateMsg" aria-label="Close"></button>
@@ -127,7 +164,9 @@
                 </div>
             </form>
 
-            <p class="mt-2">Dias necessários para assistir todos os vídeos do resultado: <b><span data-bind="text: numDays"></span> dias.</b></p>
+            <div class="alert alert-success mt-3" role="alert">
+                Dias necessários para assistir todos os vídeos do resultado: <b><span data-bind="text: numDays"></span> dias.</b>
+            </div>
         </div>
     </div>
 
