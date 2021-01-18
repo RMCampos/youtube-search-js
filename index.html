@@ -79,7 +79,7 @@
                 <!-- /ko -->
             </div>
 
-            <nav aria-label="Page navigation" class="position-absolute mt-3 start-50" data-bind="visible: showPagination">
+            <nav aria-label="Page navigation" class=" mt-3" data-bind="visible: showPagination">
                 <ul class="pagination">
                     <li class="page-item" data-bind="css: {'disabled': currentPage() === 1}">
                         <button type="button" class="page-link" data-bind="click: prevPage, attr: {'aria-disabled': currentPage() === 1? 'true' : 'false'}">Previous</button>
@@ -153,7 +153,7 @@
                 </div>
 
                 <div class="col-12 mt-3">
-                    <button class="btn btn-primary" type="submit">Atualizar</button>
+                    <button class="btn btn-primary" type="submit">Calcular</button>
                 </div>
 
                 <div class="col-12 mt-3" data-bind="visible: updateErrorMsg() !== ''">
@@ -164,7 +164,7 @@
                 </div>
             </form>
 
-            <div class="alert alert-success mt-3" role="alert">
+            <div class="alert alert-success mt-3" role="alert" data-bind="visible: numDays() !== '' && parseInt(numDays()) > 0">
                 Dias necessários para assistir todos os vídeos do resultado: <b><span data-bind="text: numDays"></span> dias.</b>
             </div>
         </div>

@@ -26,7 +26,7 @@
         self.pageToken = ko.observable('');
         self.allVideosArray = [];
         self.exampleEnabled = ko.observable(false);
-        self.logEnabled = ko.observable(true);
+        self.logEnabled = ko.observable(false);
         self.daysLimit = ko.observable(1000);
 
         // Pagination
@@ -237,7 +237,6 @@
                 max++;
             } while (secondArray.length > 0 && max < self.daysLimit());
 
-            console.log('finished ALL! Days:', daysNedeed);
             self.numDays(daysNedeed);
         }
 
@@ -319,7 +318,10 @@
                 );
 
                 getJson(searchUrl).then((responseA) => {
-                    console.log('First request OK');
+                    if (self.logEnabled()) {
+                        console.log('First request OK');
+                    }
+
                     self.pageToken(responseA.nextPageToken);
 
                     responseA.items.forEach((item) => {
@@ -333,13 +335,15 @@
                     const detailsUrl = getDetailsUrl(idsArray, self.googleKey());
 
                     getJson(detailsUrl).then((responseB) => {
-                        console.log('Second request OK');
+                        if (self.logEnabled()) {
+                            console.log('Second request OK');
+                        }
+
                         for (let i in responseB.items) {
                             const sec = getTimeInSeconds(responseB.items[i].contentDetails.duration);
                             _updateVideoDuration(responseA.items, responseB.items[i].id, sec);
                         }
                         
-                        console.log('Resolving!');
                         resolve();
                     });
                 });
@@ -366,7 +370,18 @@
                 return false;
             }
 
-            self.isSearching(true);
+            if (!self.isSearching()) {
+                self.isSearching(true);
+                Swal.fire({
+                    title: 'Aguarde!',
+                    html: 'Obtendo vídeos...',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    onBeforeOpen: () => {
+                        Swal.showLoading()
+                    },
+                });
+            }
 
             _getVideos().then(() => {
                 if (self.allVideosArray.length < 200) {
@@ -393,15 +408,16 @@
                     _doPagination();
                 }
                 _startWordsAnalysis();
-                _startTimeAnalysis();
 
                 self.totalDurationResuls(formatSeconds(totalSeconds));
                 self.isSearching(false);
+                swal.close();
             }).catch((err) => {
                 if (err) {
                     console.log('Catch', err);
                 }
                 self.isSearching(false);
+                swal.close();
             });
 
             return false;
@@ -422,6 +438,7 @@
             self.minAvThu('');
             self.minAvFri('');
             self.minAvSat('');
+            self.numDays('');
             self.showResultPanel(false);
         };
 
